@@ -1,22 +1,20 @@
-#![feature(auto_traits, negative_impls, specialization)]
-
-mod theme;
+pub mod theme;
 
 #[allow(unused_macros)]
 #[macro_export]
-macro_rules! cstr {
-    ($($arg:tt)*) => {std::ffi::CString::new(format!($($arg)*)).unwrap_or_default().as_c_str()};
+macro_rules! rayui_str {
+  ($($arg:tt)*) => {Some(rstr!($($arg)*))};
 }
 
-#[allow(unused_macros)]
-#[macro_export]
-macro_rules! gui_str {
-  ($($arg:tt)*) => {Some(cstr!($($arg)*))};
-}
+#[cfg(test)]
+mod tests {
+  use raylib::prelude::*;
 
-#[allow(unused_macros)]
-#[macro_export]
-macro_rules! proto_state {
+  use crate::theme::{Theme, RaylibHandleApplyTheme};
+  use crate::*;
+
+  #[allow(unused_macros)]
+  macro_rules! proto_state {
   ($T:tt = $D:expr $(, $N:ident: $TT:ty = $DD:expr)* => $E:expr $(=> $B:block)?) => {
     unsafe {
       static mut _STATE: $T = $D;
@@ -27,13 +25,6 @@ macro_rules! proto_state {
     }
   };
 }
-
-#[cfg(test)]
-mod tests {
-  use raylib::prelude::*;
-
-  use crate::theme::{Theme, RaylibHandleApplyTheme};
-  use crate::*;
 
   #[test]
   fn test() {}
@@ -73,7 +64,7 @@ mod tests {
 
       d.clear_background(color);
 
-      if d.gui_button(rrect(0, 0, 200, 100), gui_str!("Yes.")) {}
+      if d.gui_button(rrect(0, 0, 200, 100), rayui_str!("Yes.")) {}
 
       proto_state!(bool = true => d.gui_check_box(rrect(200, 0, 100, 100), None, _STATE));
       proto_state!(f32 = 0.0 => d.gui_slider(rrect(0, 100, 300, 100), None, None, _STATE, 0.0, 360.0));
