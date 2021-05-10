@@ -7,10 +7,15 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-crossbeam-utils = "0.8.3"
-derive_builder = "0.10.2"
-lazy_static = "1.4.0"
-num-traits = "0.2.14"
-raylib = "3.5.0"
-serde = { version = "1.0.125", features = ["derive"] }
-serde_json = "1.0.64"
+
+# May need these in the future
+#crossbeam-utils = "^0.8"
+#derive_builder = "^0.10"
+#lazy_static = "^1.4"
+
+num-traits = "^0.2"
+raylib = "^3.5"
+
+# Will eventually be used for saving settings?
+serde = { version = "^1.0", features = ["derive"] }
+serde_json = "^1.0"

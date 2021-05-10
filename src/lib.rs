@@ -1,4 +1,6 @@
 pub mod theme;
+pub mod ui;
+pub mod pos;
 
 #[allow(unused_macros)]
 #[macro_export]
@@ -12,19 +14,26 @@ mod tests {
 
   use crate::theme::{Theme, RaylibHandleApplyTheme};
   use crate::*;
+  use crate::ui::{Ui};
 
   #[allow(unused_macros)]
   macro_rules! proto_state {
-  ($T:tt = $D:expr $(, $N:ident: $TT:ty = $DD:expr)* => $E:expr $(=> $B:block)?) => {
-    unsafe {
-      static mut _STATE: $T = $D;
-      $(static mut $N: $TT = $DD;)*
-      let _new_state = $E;
-      $(if _new_state != _STATE $B;)?
-      _STATE = _new_state; _STATE
+    ($T:tt = $D:expr $(, $N:ident: $TT:ty = $DD:expr)* => $E:expr $(=> $B:block)?) => {
+      unsafe {
+        static mut _STATE: $T = $D;
+        $(static mut $N: $TT = $DD;)*
+        let _new_state = $E;
+        $(if _new_state != _STATE $B;)?
+        _STATE = _new_state; _STATE
+      }
+    };
+  }
+
+  ids! {
+    struct Ids {
+      slider,
     }
-  };
-}
+  }
 
   #[test]
   fn test() {}
@@ -59,10 +68,16 @@ mod tests {
 
     let mut color = rcolor(32, 32, 32, 255);
 
+    let mut ids = Ids::new();
+
     while !rl.window_should_close() {
       let mut d = rl.begin_drawing(&thread);
 
       d.clear_background(color);
+
+      if let Some(val) = d.slider(rrect(400, 500, 300, 20), 0, 100, &mut ids.slider) {
+        println!("{}", val);
+      }
 
       if d.gui_button(rrect(0, 0, 200, 100), rayui_str!("Yes.")) {}
 

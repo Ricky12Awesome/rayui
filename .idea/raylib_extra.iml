@@ -54,6 +54,7 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/serde_derive-1c5ac0cd8103e00c/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/serde_json-77fecfdab1b9f583/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-368ad20645aa6e5d/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-125316528947642f/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
