@@ -1,91 +1,81 @@
 #![allow(unused)]
 
-use raylib::drawing::RaylibDrawHandle;
-use raylib::ffi::Rectangle;
-use raylib::misc::AsF32;
-use raylib::rgui::RaylibDrawGui;
 use std::collections::HashMap;
+
+use raylib::drawing::RaylibDrawHandle;
+use raylib::misc::AsF32;
+use raylib::prelude::Rectangle;
+use raylib::rgui::RaylibDrawGui;
 
 #[macro_export]
 macro_rules! ids {
-    ($Vis:vis struct $Name:ident {
-      $($PName:ident),* $(,)?
-    }) => {
-      $Vis struct $Name {
-        $($PName: crate::ui::UiValue,)*
-      }
-
-      impl $Name {
-        fn new() -> Self {
-          Self {
-            $($PName: crate::ui::UiValue::default(),)*
-          }
+  ($Vis:vis struct $Name:ident {
+    $($PName:ident),* $(,)?
+  }) => {
+    $Vis struct $Name {
+      $($PName: crate::ui::UiValue,)*
+    }
+    impl $Name {
+      fn new() -> Self {
+        Self {
+          $($PName: crate::ui::UiValue::new(stringify!($PName).to_string()),)*
         }
       }
-    };
+    }
+  };
 }
 
-#[derive(Default)]
+pub trait UiBuilder<T> {
+  fn build(&mut self, draw: &mut impl RaylibDrawGui) -> T;
+}
+
 pub struct UiValue {
-  bytes: [u8; 4]
+  id: String,
+  element: Option<Box<dyn std::any::Any>>
 }
 
 impl UiValue {
-  fn set_u32(&mut self, val: u32) {
-    self.bytes = val.to_be_bytes();
+  pub fn new(id: String) -> UiValue {
+    UiValue { id, element: None }
   }
 
-  fn get_u32(&self) -> u32 {
-    u32::from_be_bytes(self.bytes)
+  pub fn slider<N: AsF32>(&mut self, rect: Rectangle, val: N, min: N, max: N) -> &mut SliderUiValue {
+    if let None = self.element {
+      let slider = SliderUiValue {
+        rect,
+        val: val.as_f32(),
+        min: min.as_f32(),
+        max: max.as_f32(),
+      };
+
+      self.element = Some(Box::new(slider));
+    }
+
+    if let Some(val) = &mut self.element {
+      val.downcast_mut::<SliderUiValue>().unwrap()
+    } else {
+      panic!("How is this none?")
+    }
   }
 
-  fn set_f32(&mut self, val: f32) {
-    self.bytes = val.to_be_bytes();
-  }
-
-  fn get_f32(&self) -> f32 {
-    f32::from_be_bytes(self.bytes)
-  }
-
-  fn set_bool(&mut self, val: bool) {
-    self.bytes = if val { [1, 0, 0, 0] } else { [0, 0, 0, 0] };
-  }
-
-  fn get_bool(&self) -> bool {
-    self.bytes[0] != 0
-  }
 }
 
-pub trait Ui: RaylibDrawGui {
-  #[rustfmt::skip]
-   fn slider<N: AsF32>(
-    &mut self, rect:
-    impl Into<Rectangle>,
-    min: N,
-    max: N,
-    val: &mut UiValue
-  ) -> Option<f32> {
-    let old_val = val.get_f32();
+pub struct SliderUiValue {
+  rect: Rectangle,
+  val: f32,
+  min: f32,
+  max: f32,
+}
 
-    let new_val = self.gui_slider(
-      rect,
-      None,
-      None,
-      old_val,
-      min.as_f32(),
-      max.as_f32()
-    );
+impl<'a> UiBuilder<Option<f32>> for SliderUiValue {
+  fn build(&mut self, draw: &mut impl RaylibDrawGui) -> Option<f32> {
+    let val = draw.gui_slider(self.rect, None, None, self.val, self.min, self.max);
 
-    if old_val != new_val {
-      val.set_f32(new_val);
-
-      Some(new_val)
+    if self.val != val {
+      self.val = val;
+      Some(self.val)
     } else {
       None
     }
   }
-}
-
-impl <T: RaylibDrawGui> Ui for T {
-
 }
