@@ -31,6 +31,7 @@ mod tests {
   ids! {
     struct Ids {
       slider,
+      button,
     }
   }
 
@@ -78,8 +79,15 @@ mod tests {
 
       d.clear_background(Color::new(32, 32, 32, 32));
 
+      if ids.button
+        .button(rrect(5.0, 5.0, 400.0, 40.0), "Click Me")
+        .build(&mut d)
+      {
+        println!("Clicked");
+      }
+
       if let Some(val) = ids.slider
-        .slider(rrect(5.0, 5.0, 400.0, 40.0), 0, -10, 10)
+        .slider(rrect(5.0, 45.0, 400.0, 40.0), 0, -10, 10)
         .build(&mut d)
       {
         println!("{}", val);
